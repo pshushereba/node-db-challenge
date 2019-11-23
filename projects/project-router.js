@@ -8,7 +8,12 @@ const router = express.Router();
 router.get('/', (req, res) => {
     Projects.getAllProjects()
         .then((projects) => {
-            res.status(200).json(projects);
+            const changedCompleted = [...projects].map( project => {
+                project.completed = Boolean(project.completed);
+                return project;
+              });
+            
+            res.status(200).json(changedCompleted);
         })
         .catch((err) => {
             res.status(500).json({message: "There was an error retrieving the projects"})
@@ -54,6 +59,17 @@ router.get('/resources', (req, res) => {
 
 // adding tasks.
 
+router.post('/:id/tasks', (req, res) => {
+    const {id} = req.params;
+    const newTask = req.body;
+    newTask.project_id = id;
+
+    Projects.addTask(id, newTask)
+        .then((id) => {
+            res.status(201).json(id)
+        })
+        .catch((err) => res.status(500).json({ message: 'Failed to add task' }))
+})
 
 // retrieving a list of tasks.
 
@@ -62,7 +78,12 @@ router.get('/:id/tasks', (req, res) => {
 
     Projects.getTasks(id)
         .then((tasks) => {
-            res.status(200).json(tasks);
+            const changedCompleted = [...tasks].map( task => {
+                task.completed = Boolean(task.completed);
+                return task;
+              });
+            
+            res.status(200).json(changedCompleted);
         })
         .catch((err) => {
             res.status(500).json({message: "There was an error retrieving the tasks"})

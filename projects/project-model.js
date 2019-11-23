@@ -4,6 +4,10 @@ function getAllProjects() {
     return db('projects');
 }
 
+function getProject(id) {
+    return db('projects').where({id: id});
+}
+
 function addProject(project) {
     return db('projects').insert(project)
         .then((res) => {
@@ -31,10 +35,22 @@ function getTasks(id) {
     .where({ 'projects.id': id });
 }
 
+async function addTask(id, task) {
+    const project = await getProject(id);
+    if(project.length === 0) {
+      return [];
+    } else {
+      return db('tasks')
+        .insert(task);
+    }
+  }
+
 module.exports = {
     getAllProjects,
     addProject,
     getAllResources,
     addResource,
-    getTasks
+    getTasks,
+    getProject,
+    addTask
 };
